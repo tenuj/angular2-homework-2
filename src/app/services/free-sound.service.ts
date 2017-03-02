@@ -10,12 +10,14 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/throw';
+import {ProtocolService} from "./protocol.service";
 
 @Injectable()
 export class FreeSoundService {
 
   public constructor(
     private http : Http,
+    private protocol : ProtocolService,
     /**
      * Инжект настроек API
      */
@@ -164,7 +166,7 @@ export class FreeSoundService {
    */
   private makeSearchStringURL( searchString : string ) : string
   {
-    return `${this.apiSettings.baseURL}search/text/?query=${searchString}`;
+    return `${this.protocol.resolveProtocol( this.apiSettings.baseURL )}search/text/?query=${searchString}`;
   }
 
   /**
@@ -174,7 +176,7 @@ export class FreeSoundService {
    */
   private makeGetSoundStringURL( soundId : string ) : string
   {
-    return `${this.apiSettings.baseURL}sounds/${soundId}/`;
+    return `${this.protocol.resolveProtocol( this.apiSettings.baseURL )}sounds/${soundId}/`;
   }
 
   /*

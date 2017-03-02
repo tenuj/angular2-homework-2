@@ -17,6 +17,7 @@ import { FileSizePipe } from './pipes/file-size.pipe';
 import { ValueDescriptionPipe } from './pipes/value-description.pipe';
 import { DurationPipe } from './pipes/duration.pipe';
 import { NumLoadedPipe } from './pipes/num-loaded.pipe';
+import {ProtocolService} from "./services/protocol.service";
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { NumLoadedPipe } from './pipes/num-loaded.pipe';
   ],
   providers: [
     FreeSoundService,
+    ProtocolService,
     { provide : 'FSApiSettings', useValue : environment.freeSoundAPIEnvironment }
 
   ],
