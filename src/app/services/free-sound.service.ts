@@ -1,3 +1,4 @@
+import {FreeSoundAPIEnvironment} from "../common/types";
 import {Injectable, Inject} from '@angular/core';
 import { Http, Response, RequestOptionsArgs, Headers } from '@angular/http';
 import {Observable} from "rxjs/Observable";
@@ -19,7 +20,7 @@ export class FreeSoundService {
      * Инжект настроек API
      */
     @Inject( 'FSApiSettings' )
-    private apiSettings : FreeSoundAPIEnvironment
+    private apiSettings : FreeSoundAPIEnvironment //На этапе Dependency Injection, типы описанные в types/index.d.ts не доступны :( поэтому описание типа FreeSoundAPIEnvironment вынесено отдельно
 
   ){}
 

@@ -1,8 +1,3 @@
-type FreeSoundAPIEnvironment = {
-  key     : string;
-  baseURL : string;
-}
-
 type SoundPreviews = {
   "preview-lq-ogg" : string;
   "preview-lq-mp3" : string;
