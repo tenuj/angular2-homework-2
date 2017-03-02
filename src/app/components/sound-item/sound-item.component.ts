@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import {UpperCasePipe} from "@angular/common";
 import {FileSizePipe} from "../../pipes/file-size.pipe";
 import {DurationPipe} from "../../pipes/duration.pipe";
+import {ValueDescription} from "../../pipes/value-description.pipe";
 
 @Component({
   selector: 'sound-item',

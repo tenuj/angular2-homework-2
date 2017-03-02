@@ -1,5 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+export type ValueDescription = {
+  type      : string;
+  value     : string | number;
+  formater? : PipeTransform;
+}
+
 @Pipe({
   name: 'valueDescription'
 })

@@ -13,21 +13,26 @@ export class DurationPipe implements PipeTransform {
     }
 
     let seconds : number = value;
-    let hourseconds : number = Math.floor(seconds / 3600);
-    seconds -= hourseconds*3600;
-    let minuteseconds : number = Math.floor(seconds / 60);
-    seconds -= minuteseconds*60;
+    let hours : number = Math.floor(seconds / 3600);
+    seconds -= hours*3600;
+    let minutes : number = Math.floor(seconds / 60);
+    seconds -= minutes * 60;
     let milliseconds : number = Math.round( ( seconds - Math.floor( seconds ) ) * 1000 );
 
     seconds = Math.floor( seconds );
 
-    if (hourseconds   < 10) {hourseconds   = "0"+hourseconds;}
-    if (minuteseconds < 10) {minuteseconds = "0"+minuteseconds;}
-    if (seconds < 10) {seconds = "0"+seconds;}
-    if ( milliseconds < 10 ) { milliseconds = "00" + milliseconds };
-    if ( milliseconds < 100 ) { milliseconds = "0" + milliseconds };
+    let hoursStr        : string = hours.toString();
+    let minutesStr      : string = minutes.toString();
+    let secondsStr      : string = seconds.toString();
+    let millisecondsStr : string = milliseconds.toString();
 
-    return minuteseconds + ':' + seconds + ':' + milliseconds;
+    if (hours   < 10) {hoursStr  = "0"+hoursStr;}
+    if (minutes < 10) {minutesStr = "0"+minutesStr;}
+    if (seconds < 10) {secondsStr = "0"+secondsStr;}
+    if ( milliseconds < 10 ) { millisecondsStr = "00" + millisecondsStr };
+    if ( milliseconds < 100 ) { millisecondsStr = "0" + millisecondsStr };
+
+    return minutesStr + ':' + secondsStr + ':' + millisecondsStr;
   }
 
 }
