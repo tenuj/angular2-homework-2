@@ -1,0 +1,32 @@
+<div class="content">
+  <h1>{{sound.name}}</h1>
+  <player [sound]="sound"></player>
+  <div class="info-content">
+    <div class="description">
+     <div class="user-info">
+       <img width="32" height="32" src="assets/alien.png" />
+       <div class="user-name-and-date">
+        <h2>{{sound.username}}</h2>
+        <h5>{{sound.created | date:'medium'}}</h5>
+       </div>
+       <div class="rating">
+         <p-rating [ngModel]="sound.avg_rating" [cancel]="false" [disabled]="true"></p-rating>
+       </div>
+     </div>
+     <p [innerHTML]="sound.description"></p>
+      <div class="tags">
+        <button *ngFor="let tag of sound.tags" pButton type="button" icon="fa-tag" class="ui-button-secondary" iconPos="left" [label]="tag" (click)="tagClick( tag )"></button>
+      </div>
+    </div>
+    <div class="audio-info">
+      <table>
+        <tr *ngFor="let vo of audioDescription">
+          <td class="type"><i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{vo.type}}</td>
+          <td class="value">{{vo | valueDescription}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="line"></div>
+</div>
+
