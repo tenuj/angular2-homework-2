@@ -1,3 +1,24 @@
 <div class="content">
-  <img [src]="sound.images?.waveform_l" />
+  <img [src]="waveFormViewMode ? sound.images?.waveform_l : sound.images?.spectral_l"/>
+  <div class="loading-bar-container" *ngIf="buffering">
+    <div *ngFor="let chunk of loadingChunks" class="loading-bar" [style.left]="chunk.start +'px'" [style.width]="chunk.width + 'px'"></div>
+  </div>
+  <div class="cursor" *ngIf="active" [style.left]="cursorPos + 'px'"></div>
+  <div *ngIf="msgs.length == 0" #panelContainer class="panel-container" (mousedown)="onPlayerClick( $event )" (mouseenter)="onMouseOver()" (mouseleave)="onMouseOut()">
+   <div #topPanel class="top-panel" [style.visibility] = "hovered ? 'visible' : 'hidden'">
+     <div>
+       <button *ngIf="waveFormViewMode" pButton class="ui-button-info"  type="button" icon="fa-bar-chart" (click)="switchToSpectralViewButtonClick()"></button>
+       <button *ngIf="! waveFormViewMode" pButton class="ui-button-info"  type="button" icon="fa-soundcloud" (click)="switchToWaveViewButtonClick()"></button>
+     </div>
+     <progress-bar [visible]="waiting"></progress-bar>
+   </div>
+   <div #bottomPanel class="bottom-panel">
+     <div [style.visibility] = "hovered && ! waiting ? 'visible' : 'hidden'">
+       <button pButton type="button" class="ui-button-info" icon="fa-play" *ngIf="! playing" (click)="onPlayClick()"></button>
+       <button pButton type="button" class="ui-button-info" icon="fa-stop" *ngIf="playing" (click)="onPauseClick()"></button>
+     </div>
+     <div class="duration">{{position | duration}}</div>
+   </div>
+  </div>
+  <p-messages [value]="msgs"></p-messages>
 </div>

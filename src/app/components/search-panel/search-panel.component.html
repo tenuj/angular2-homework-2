@@ -1,0 +1,17 @@
+<div class="search-group">
+  <div class="search-form">
+    <div class="search-input">
+      <input #searchInput type="text" [value]="searchParams?.query" pInputText />
+      <!--
+      <button pButton type="button" label="Search"></button>
+      -->
+    </div>
+    <div class="result-group">
+      <progress-bar [visible]="pending"></progress-bar>
+      <div class="num-found" >{{ searchResult | numLoaded }}</div>
+    </div>
+  </div>
+
+  <sort *ngIf="searchParams?.query" [sortFields]="sortFields" [selectedField]="searchParams?.sort" (sortChanged)="onSortChanged( $event )"></sort>
+
+</div>

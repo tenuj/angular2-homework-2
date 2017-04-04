@@ -1,4 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+/**
+ * This code has been written by Denis Shavenzov
+ * If you have any questions or notices you can contact me by email shavenzov@gmail.com
+ */
+
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'progress-bar',
@@ -8,11 +13,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class ProgressBarComponent {
 
   @Input()
-  public loadingInfo : LoadingInfo = null;
+  public visible : boolean;
 
-  @Input()
-  public visible : boolean = false;
-
-  constructor() { }
 
 }

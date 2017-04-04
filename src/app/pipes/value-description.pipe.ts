@@ -1,3 +1,11 @@
+/**
+ *
+ * This code has been written by Denis Shavenzov
+ * If you have any questions or notices you can contact me by email shavenzov@gmail.com
+ *
+ *
+ * */
+
 import { Pipe, PipeTransform } from '@angular/core';
 
 export type ValueDescription = {

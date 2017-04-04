@@ -1,3 +1,11 @@
+/**
+ *
+ * This code has been written by Denis Shavenzov
+ * If you have any questions or notices you can contact me by email shavenzov@gmail.com
+ *
+ *
+ * */
+
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
@@ -5,13 +13,13 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class NumLoadedPipe implements PipeTransform {
 
-  public transform( loadingInfo : LoadingInfo ) : string
+  public transform( result : SearchResult ) : string
   {
     let str : string = '';
 
-    if ( loadingInfo && loadingInfo.result )
+    if ( result )
     {
-      let count : number = loadingInfo.result.count;
+      let count : number = result.count;
 
       if ( count == 0 )
       {

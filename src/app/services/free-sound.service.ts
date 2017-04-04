@@ -1,196 +1,138 @@
-import {FreeSoundAPIEnvironment} from "../common/types";
+/**
+ * This code has been written by Denis Shavenzov
+ * If you have any questions or notices you can contact me by email shavenzov@gmail.com
+ */
+
 import {Injectable, Inject} from '@angular/core';
-import { Http, Response, RequestOptionsArgs, Headers } from '@angular/http';
+import { Http, Response, RequestOptionsArgs, Headers, URLSearchParams } from '@angular/http';
 import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
 import "rxjs/add/operator/map";
-import "rxjs/add/operator/switchMap";
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/delay';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/throw';
 
 @Injectable()
 export class FreeSoundService {
 
+  private static readonly fields : string[] = [
+    'id', 'name', 'tags', 'description', 'created', 'license', 'type', 'channels', 'filesize', 'bitrate', 'bitdepth', 'duration', 'samplerate', 'username', 'download', 'previews', 'images', 'num_downloads', 'avg_rating', 'num_ratings', 'rate'
+  ];
+
+  /**
+   * Authorization data
+   */
+  private authToken : AuthToken;
+
   public constructor(
-    private http : Http,
+    private http      : Http,
     /**
      * Инжект настроек API
      */
     @Inject( 'FSApiSettings' )
-    private apiSettings : FreeSoundAPIEnvironment //На этапе Dependency Injection, типы описанные в types/index.d.ts не доступны :( поэтому описание типа FreeSoundAPIEnvironment вынесено отдельно
+    private apiSettings : FreeSoundAPIEnvironment
 
   ){}
 
   /**
-   * Этот Subject существует во время выполнения задачи
+   * Redirects to authorization page
    */
-  private subject : Subject<LoadingInfo>;
+  public redirectToOAuthPage( returnState? : string ) : void
+  {
+    document.location.href = this.getOAUTHURL( returnState );
+  }
 
   /**
-   * Текущая информация о ходе загрузки
+   * Running the authorization
+   * @param code
    */
-  private loadingInfo : LoadingInfo;
+  public auth( code : string ) : Observable<AuthToken>
+  {
+    let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
+    let params  = new URLSearchParams();
+        params.set( 'client_id', this.apiSettings.clientId );
+        params.set( 'client_secret', this.apiSettings.key );
+        params.set( 'grant_type', 'authorization_code' );
+        params.set( 'code', code );
+
+    return this.http.post( this.authURL, params.toString(), { headers : headers } ).map( ( response : Response ) => { return this.onAuth( response ) } );
+  }
+
+  private onAuth( response : Response ) : AuthToken
+  {
+    this.authToken = response.json();
+    this.authToken.expires_in = new Date().getTime() + this.authToken.expires_in - 5000;
+
+    return this.authToken;
+  }
 
   /**
-   * Текущий результат поиска ( расщиренная информация о каждом SoundInstance обновляется по мере загрузки данных )
-   */
-  private searchResult  : SearchResult;
-
-  /**
-   * Строка последнего запроса для предотвращения одинаковых запросов
-   */
-  private searchStr     : string;
-
-  /**
-   * Идет процесс поиска
+   * Checking is the user authorized/token expired or not
    * @returns {boolean}
    */
-  public get pending() : boolean
+  public get isAuth() : boolean
   {
-    return this.subject != null;
+    return this.authToken && ( this.authToken.expires_in > new Date().getTime() );
   }
 
   /**
-   * Запускает процесс поиска
-   * @param searchStr строка запроса
-   * @returns {Observable<LoadingInfo>} Observable информация о ходе загрузки
+   * Running search
+   * @param searchParams
+   * @returns {Observable<SearchResult>} Observable loading info
    */
-  public search( searchStr : string ) : Observable<LoadingInfo>
+  public search( searchParams : FreeSoundSearchParams ) : Observable<SearchResult>
   {
-    if ( this.pending )
-    {
-      if ( searchStr === this.searchStr )
-      {
-        return this.subject;
-      }
-
-      this.subject.unsubscribe();
-      this.clear();
-    }
-
-    this.searchStr = searchStr;
-
-    this.subject = new Subject();
-
-    //Наблюдаем за окончанием процеса поиска,что-бы освободить ресурсы
-    this.subject.subscribe( null, ( error ) => {}, () => { this.clear() } ) ;
-
-    this.http.get( this.makeSearchStringURL( searchStr ), this.requestOptionsArgs ).switchMap( ( response ) => { return this.onResultLoaded( response ) } ).map( ( soundInstance ) => { return this.onSoundInstanceLoaded( soundInstance ) } ).subscribe( this.subject );
-
-    return this.subject;
+    return this.http.get( this.makeSearchStringURL( searchParams ), this.requestOptionsArgs ).map( ( response : Response ) => { return response.json() } );
   }
 
   /**
-   * После загрузки результата, запрашиваем расширенную информацию о каждом SoundInstance
-   * @param response
-   * @returns {any}
-   */
-  private onResultLoaded( response : Response ) : Observable<SoundInstance>
-  {
-    this.searchResult = response.json();
-
-    /*
-     Инициализируем информацию о ходе загрузки
-     */
-    this.loadingInfo = {
-      loaded : 0,
-      total  : this.searchResult.results.length,
-      result : this.searchResult
-    };
-
-
-    this.subject.next( this.loadingInfo );
-
-    /*
-    Формируем массив Observable для каждого SoundInstance
-     */
-    let multi : ( Observable<SoundInstance> | number )[] = [];
-
-    for ( let result of this.searchResult.results )
-    {
-      //delay( 50 ) Перед каждым выполнением запроса будет задержка 50 ms, что-бы не забанили
-      multi.push( this.http.get( this.makeGetSoundStringURL( result.id ), this.requestOptionsArgs ).delay( 50 ).map( response => response.json() ).catch( response => Observable.of( result ) ) );
-    }
-
-    /*
-    Маленький хак :(
-    Observable.merge не работает с масивом Observable[], а ждет список
-     */
-    multi.push( 4 ); //Ограничиваем максимальное количество запросов выполняемых за один раз, что-бы не забанили
-
-    return Observable.merge.apply( this, multi );
-  }
-
-  /**
-   * Выполняется при загрузке очередного SoundInstance
-   * @param soundInstance
-   * @returns {LoadingInfo}
-   */
-  private onSoundInstanceLoaded( soundInstance : SoundInstance ) : LoadingInfo
-  {
-    console.log( 'on sound instance loaded' );
-
-    /*
-    Заменяем SoundInstance на SoundInstance c расширенной информацией
-     */
-    let index : number = this.searchResult.results.map( value => value.id ).indexOf( soundInstance.id );
-
-    this.searchResult.results[ index ] = soundInstance;
-
-    //Обновляем информацию о ходе загрузки
-    this.loadingInfo.loaded ++;
-
-    return this.loadingInfo;
-  }
-
-  /**
-   * Очистка параметров после загрузки
-   */
-  private clear() : void
-  {
-    this.subject = null;
-    this.searchResult = null;
-    this.loadingInfo = null;
-    this.searchStr = null;
-  }
-
-  /**
-   * Формирует api url поиска
+   * Creates api url for search
    * @param searchString
    * @returns {string}
    */
-  private makeSearchStringURL( searchString : string ) : string
+  private makeSearchStringURL( searchParams : FreeSoundSearchParams ) : string
   {
-    return `${this.apiSettings.baseURL}search/text/?query=${searchString}`;
-  }
+    let params  = new URLSearchParams();
+        params.set( 'query', searchParams.query );
+        params.set( 'fields', FreeSoundService.fields.join() );
 
-  /**
-   * Формирует api url запроса расширенной информации о SoundInstance
-   * @param soundId
-   * @returns {string}
-   */
-  private makeGetSoundStringURL( soundId : string ) : string
-  {
-    return `${this.apiSettings.baseURL}sounds/${soundId}/`;
+    if ( searchParams.page )
+    {
+      params.set( 'page', searchParams.page.toString() );
+    }
+
+    if ( searchParams.pageSize )
+    {
+      params.set( 'page_size', searchParams.pageSize.toString() );
+    }
+
+    if ( searchParams.sort )
+    {
+      params.set( 'sort', searchParams.sort );
+    }
+
+    return this.apiSettings.baseURL + 'search/text/?' + params.toString();
   }
 
   /*
-  Формирование headers запроса где указываются параметры аутентификации
+  Creates request header with authorization params
    */
-
-  private _requestOptionsArgs : RequestOptionsArgs;
-
-  private get requestOptionsArgs() : RequestOptionsArgs
+  public get requestOptionsArgs() : RequestOptionsArgs
   {
-    if ( ! this._requestOptionsArgs )
+    return { headers : new Headers( { 'Authorization' : `Bearer ${this.authToken.access_token}` } ) };
+  }
+
+  private getOAUTHURL( returnState : string ) : string
+  {
+    let url : string = `${this.apiSettings.baseURL}oauth2/authorize/?client_id=${this.apiSettings.clientId}&response_type=code`;
+
+    if ( returnState )
     {
-      this._requestOptionsArgs = { headers : new Headers( { 'Authorization' : `Token ${this.apiSettings.key}` } ) };
+      url += `&state=${returnState}`;
     }
 
-    return this._requestOptionsArgs;
+    return url;
+  }
+
+  private get authURL() : string
+  {
+    return `${this.apiSettings.baseURL}oauth2/access_token/`;
   }
 
 }

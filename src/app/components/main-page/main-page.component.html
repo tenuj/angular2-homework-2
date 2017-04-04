@@ -1,0 +1,22 @@
+<p-messages [value]="msgs"></p-messages>
+<div class="content">
+  <div class="logo">
+    <img src="//freesound.org/media/images/logo.png" />
+  </div>
+  <search-panel [searchParams]="searchParams" [searchResult]="searchResult" [pending]="pending" (queryChanged)="onQueryChanged( $event )" (sortChanged)="onSortChanged( $event )"></search-panel>
+  <div class="item-group">
+    <sound-item *ngFor="let sound of sounds" [sound]="sound" (onTagClick)="onTagClick( $event )"></sound-item>
+  </div>
+
+  <p-paginator *ngIf="sounds && ( sounds.length > 0 ) && ( searchResult?.count > searchParams?.pageSize )"
+               [totalRecords]="searchResult?.count"
+               [rowsPerPageOptions]="rowsPerPageOptions"
+               [first]="pFirst"
+               [rows]="searchParams?.pageSize"
+               pageLinkSize="20"
+               (onPageChange)="paginate($event)">
+
+  </p-paginator>
+
+</div>
+

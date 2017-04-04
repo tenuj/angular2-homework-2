@@ -1,4 +1,13 @@
+/**
+ *
+ * This code has been written by Denis Shavenzov
+ * If you have any questions or notices you can contact me by email shavenzov@gmail.com
+ *
+ *
+ * */
+
 import { Pipe, PipeTransform } from '@angular/core';
+import {isNullOrUndefined} from "util";
 
 @Pipe({
   name: 'duration'
@@ -7,7 +16,7 @@ export class DurationPipe implements PipeTransform {
 
   public transform( value : number ) : string
   {
-    if ( ! value )
+    if ( isNullOrUndefined( value ) )
     {
       return 'N/A';
     }
@@ -29,8 +38,15 @@ export class DurationPipe implements PipeTransform {
     if (hours   < 10) {hoursStr  = "0"+hoursStr;}
     if (minutes < 10) {minutesStr = "0"+minutesStr;}
     if (seconds < 10) {secondsStr = "0"+secondsStr;}
-    if ( milliseconds < 10 ) { millisecondsStr = "00" + millisecondsStr };
-    if ( milliseconds < 100 ) { millisecondsStr = "0" + millisecondsStr };
+
+    if ( milliseconds < 10 )
+    {
+      millisecondsStr = "00" + millisecondsStr;
+    }
+    else if ( milliseconds < 100 )
+    {
+      millisecondsStr = "0" + millisecondsStr;
+    }
 
     return minutesStr + ':' + secondsStr + ':' + millisecondsStr;
   }

@@ -4,13 +4,15 @@
   <div class="info-content">
     <div class="description">
      <div class="user-info">
-       <img width="32" height="32" src="assets/alien.png" />
+       <!--
+       <img style="width:64px;height:64px;" src="assets/alien.png" />
+       -->
        <div class="user-name-and-date">
         <h2>{{sound.username}}</h2>
         <h5>{{sound.created | date:'medium'}}</h5>
        </div>
        <div class="rating">
-         <p-rating [ngModel]="sound.avg_rating" [cancel]="false" [disabled]="true"></p-rating>
+         <p-rating [ngModel]="sound.avg_rating" [cancel]="false" ></p-rating>
        </div>
      </div>
      <p [innerHTML]="sound.description"></p>
@@ -19,6 +21,9 @@
       </div>
     </div>
     <div class="audio-info">
+      <div class="download" *ngIf="sound.download">
+        <p-splitButton label="Download sound" icon="fa-download" [model]="downloadItems" (click)="downloadButtonClick()"></p-splitButton>
+      </div>
       <table>
         <tr *ngFor="let vo of audioDescription">
           <td class="type"><i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{vo.type}}</td>

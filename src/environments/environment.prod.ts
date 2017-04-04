@@ -1,9 +1,14 @@
 export const environment = {
-  production          : true,
+  production          : false,
 
   freeSoundAPIEnvironment : {
-    key     : "wwdJvgE56Z5IrYJiBJtmsVyyDO0VSAZVACkG2MeR",
-    baseURL : "//www.freesound.org/apiv2/"
+    key                 : "wwdJvgE56Z5IrYJiBJtmsVyyDO0VSAZVACkG2MeR",
+    clientId            : "c1P0mtgQUf2l9GlI8nAH",
+    baseURL             : "//www.freesound.org/apiv2/",
+    defaultPageSize     : 15,
+    maximumPageSize     : 150,
+    defaultSort         : 'score',
+    defaultSearchParams : { query : '', page : 1, pageSize : 15, sort : 'score' }
   }
 
 };

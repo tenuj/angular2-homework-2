@@ -1,3 +1,49 @@
+/**
+ * This code has been written by Denis Shavenzov
+ * If you have any questions you can contact me by email shavenzov@gmail.com
+ */
+
+type SortButtonParam = {
+  label     : string;
+  ascSort   : FreeSoundSort;
+  descSort? : FreeSoundSort;
+}
+
+type FreeSoundSort =
+  'score' |
+  'duration_desc' |
+  'duration_asc' |
+  'created_desc' |
+  'created_asc' |
+  'downloads_desc' |
+  'downloads_asc' |
+  'rating_desc' |
+  'rating_asc';
+
+type FreeSoundSearchParams = {
+  query?      : string;
+  page?       : number;
+  pageSize?   : number; //By default pageSize=15, and the maximum is pageSize=150.
+  sort?       : FreeSoundSort;
+}
+
+type FreeSoundAPIEnvironment = {
+  key                 : string;
+  clientId            : string;
+  baseURL             : string;
+  defaultPageSize     : number,
+  maximumPageSize     : number,
+  defaultSort         : string,
+  defaultSearchParams : FreeSoundSearchParams;
+}
+
+type PaginatorEvent = {
+  first     : number; //Index of the first record
+  rows      : number; //Number of rows to display in new page
+  page      : number; //Index of the new page
+  pageCount : number; //Total number of pages
+}
+
 type SoundPreviews = {
   "preview-lq-ogg" : string;
   "preview-lq-mp3" : string;
@@ -54,10 +100,23 @@ type SearchResult = {
   results  : SoundInstance[];
 }
 
-type LoadingInfo = {
-  loaded : number;
-  total  : number;
-  result : SearchResult;
+type AuthToken = {
+  access_token  : string;
+  scope         : string;
+  expires_in    : number;
+  refresh_token : string;
 }
 
+type AuthParams = {
+  code?  : string;
+  error? : string;
+  state? : string;
+}
 
+type AudioServiceEvent = {
+  sound        : SoundInstance;
+  relatedEvent : any;
+  player       : any;
+}
+
+type AudioServiceEventType = 'progress' | 'waiting' | 'timeupdate' | 'ended' | 'error' | 'pause' | 'play' | 'soundChanged';

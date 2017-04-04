@@ -1,0 +1,5 @@
+<div class="sort-group">
+  <sort-button *ngFor="let sortField of sortFields" [sortField]="sortField" [selected]="selectedField" (onClick)="sortButtonClick( sortField, $event )"></sort-button>
+</div>
+
+

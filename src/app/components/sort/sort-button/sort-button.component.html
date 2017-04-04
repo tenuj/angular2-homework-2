@@ -1,0 +1,5 @@
+<button fixedButton type="button" (click)="clickHandler()" [label]="sortField.label" iconPos="right"
+        [ngClass]="{ 'ui-button-info' : isSelectedInSortField, 'ui-button-secondary' : ! isSelectedInSortField }"
+        [icon]="( isSelectedInSortField && sortField.ascSort && sortField.descSort ) ? ( sortField.descSort == selected ? 'fa-sort-amount-desc' : 'fa-sort-amount-asc' ) : null">
+</button>
+
